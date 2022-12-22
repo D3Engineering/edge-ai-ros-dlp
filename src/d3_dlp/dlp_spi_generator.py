@@ -151,7 +151,7 @@ def generate_spi_command_arr(cmdtype, data):
     if checksumint > 255:
         checksumint &= 0xFF
     result[-1] = checksumint
-    rospy.loginfo(format_address_arr(result))
+    rospy.logdebug(format_address_arr(result))
     return result
 
 

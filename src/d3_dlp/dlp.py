@@ -99,6 +99,8 @@ class DLPDemo:
 
     def update_dlp(self, dlp_cmd):
         rospy.loginfo("DLP command: " + dlp_cmd)
+        self.disable_dlp_message()
+        rospy.sleep(0.05)
         if(dlp_cmd == 'logo'):
             self.message_dlp_logo()
         elif(dlp_cmd == 'scan'):

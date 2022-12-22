@@ -26,9 +26,41 @@ def talker():
 
     rate = rospy.Rate(10) # 10hz
     while not rospy.is_shutdown():
+        char = input("Waiting for direction (W,A,S,D):").lower()
+        if char == "w":
+            state = "TEST|DRIVE"
+            vel.linear.x = 1.0
+            vel.angular.z = 0.0
+        elif char == "a":
+            state = "TEST|DRIVE"
+            vel.linear.x = 0.0
+            vel.angular.z = 1.0
+        elif char == "s":
+            state = "TEST|DRIVE"
+            vel.linear.x = -1.0
+            vel.angular.z = 0.0
+        elif char == "d":
+            state = "TEST|DRIVE"
+            vel.linear.x = 0.0
+            vel.angular.z = -1.0
+        elif char == "q":
+            state = "TEST|DRIVE"
+            vel.linear.x = 0.0
+            vel.angular.z = 0.0
+        elif char == "e":
+            state = "TEST|SCAN"
+            vel.linear.x = 0.0
+            vel.angular.z = 0.0
+        else:
+            state = "TEST|TRACK"
+            vel.linear.x = 0.0
+            vel.angular.z = 0.0
+
+        rospy.loginfo("State: " + state)
+        rospy.loginfo("Velocity: Linear:" + str(vel.linear.x) + "  Angular:" + str(vel.angular.z))
         state_pub.publish(state)
         vel_pub.publish(vel)
-        rate.sleep()
+        #rate.sleep()
 
 if __name__ == '__main__':
     try:
