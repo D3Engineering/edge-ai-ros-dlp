@@ -45,6 +45,7 @@ def VCM_CONTROL(enable_playback):
 
 
 def cast_to_int(hex_or_int_str):
+    hex_or_int_str = str(hex_or_int_str)
     if len(hex_or_int_str) >= 2 and hex_or_int_str[0:2] == "0x":
         return int(hex_or_int_str, 16)
     else:

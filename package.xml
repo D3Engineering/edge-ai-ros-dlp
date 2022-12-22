@@ -1,14 +1,13 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>ros-noetic-dlp-demo</name>
+  <name>d3_dlp</name>
   <version>0.0.0</version>
   <description>
-  The ros-noetic-dlp-demo package for sending commands to DLP3021LEQ1EVM for Electronica 2022 demo.
+  The d3_dlp package for sending commands to DLP3021LEQ1EVM for Electronica 2022 demo.
   The package expects the DLP EVM to be preflashed with a special image made for Electronica.
   </description>
 
-  <maintainer email="t-fujiwara1@ti.com">Takuma Fujiwara</maintainer>
-
+  <maintainer email="root@todo.todo">root</maintainer>
 
   <!-- One license tag required, multiple allowed, one license per tag -->
   <!-- Commonly used license strings: -->
@@ -19,10 +18,7 @@
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/ros-noetic-dlp-demo</url> -->
-
-
-<author email="t-fujiwara1@ti.com">Takuma Fujiwara</author>
+  <!-- <url type="website">http://wiki.ros.org/d3_dlp</url> -->
 
 
   <buildtool_depend>catkin</buildtool_depend>

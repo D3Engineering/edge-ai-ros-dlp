@@ -1,7 +1,7 @@
 <launch>
-    <node pkg="ros-noetic-dlp-demo" type="dlp_ros.py" name="dlp_control" ns="dlp" output="screen">
+    <node pkg="d3_dlp" type="dlp_ros.py" name="dlp_control" ns="dlp" output="screen">
     </node>
-    <node pkg="ros-noetic-dlp-demo" type="dlp_interface.py" name="dlp_interface" ns="dlp" output="screen">
+    <node pkg="d3_dlp" type="dlp_interface.py" name="dlp_interface" ns="dlp" output="screen">
         <remap from="/dlp_test_string" to="/dlp/dlp_test_string"/>
     </node>
 </launch>

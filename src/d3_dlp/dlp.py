@@ -3,27 +3,21 @@
 # ROS wrapper around dlp.py
 
 from pyftdi.spi import SpiController, SpiIOError
-
+from d3_dlp import dlp_spi_generator as dlpgen
 
 class DLPDemo:
 
-    # To add more messages, add new function message_dlp_<message_name> and update callback function
-
-    # Video Name                                        Offset(StartAddr)	FrameCount
-    # ----------------------------------------------------------------------------------
-    # all                                               0x85940		258
-    # go                                                0x1E27634		31
-    # slow                                              0x2141744		93
-    # stop                                              0x2E2942C		18 
-    # Correct values:
-    #Video Name                                     Offset (0x)           Frame Count (decimal)
-    #----------------------------------------------------------------------------------
-    #Turn                                            85948                   39 = 0x27
-    #Straight                                        591500                  45 = 0x2d
-    #Go                                              A65AD8                  31 = 0x1f
-    #Slow                                            D7FBE8                  93 = 0x5d
-    #Stop                                            1A678D0                 18 = 0x12
-    # ----------------------------------------------------------------------------------
+# NEW VIDEO INFORMATION
+#Video Name Offset offset (hex) framerate (hz) framecount (int)
+#------------------------------------------------------------
+#D3_Logo    0x85958     20hz        108
+#Scanning   0x17DA51C   20hz        27
+#Turn       0x1A7A60C   30hz        39
+#Straight   0x1F861C4   30hz        45
+#Go         0x245A79C   30hz        31
+#Slow       0x27748AC   30hz        93
+#Stop       0x345C594   30hz        18
+#------------------------------------------------------------
 
     # message formats are:
     # CMD=0, Address (LSB), Address (MSB), Data (LSB), Data, Data, Data (MSB), Checksum
@@ -44,79 +38,82 @@ class DLPDemo:
         Display GO
         """
         #Go                                              A65AD8                  31 = 0x1f
-        self.spi.exchange([0x00, 0x64, 0x00, 0xd8, 0x5a, 0xa6, 0x00, 0x3c]) # write video start address 1
-        self.spi.exchange([0x00, 0x20, 0x00, 0x01, 0x00, 0x00, 0x00, 0x21]) # don't flip
-        self.spi.exchange([0x00, 0x68, 0x00, 0x1f, 0x00, 0x00, 0x00, 0x87]) # write video config 1
-        self.spi.exchange([0x00, 0x74, 0x00, 0x15, 0x00, 0x00, 0x00, 0x89]) # write video control
+        self.spi.exchange(dlpgen.VCM_START_ADDR1(0x245A79C))
+        self.spi.exchange(dlpgen.FMT_FLIP(long_flip=False, short_flip=True))
+        self.spi.exchange(dlpgen.VCM_CONFIG1(0, 31))
+        self.spi.exchange(dlpgen.VCM_CONTROL(True))
 
     def message_dlp_slow(self):
         """
         Display SLOW
         """
-        #Slow                                            D7FBE8                  93 = 0x5d
-        self.spi.exchange([0x00, 0x64, 0x00, 0xE8, 0xFB, 0xD7, 0x00, 0x1E]) # write video start address 1
-        self.spi.exchange([0x00, 0x20, 0x00, 0x01, 0x00, 0x00, 0x00, 0x21]) # don't flip
-        self.spi.exchange([0x00, 0x68, 0x00, 0x5d, 0x00, 0x00, 0x00, 0xC5]) # write video config 1
-        self.spi.exchange([0x00, 0x74, 0x00, 0x15, 0x00, 0x00, 0x00, 0x89]) # write video control
+        self.spi.exchange(dlpgen.VCM_START_ADDR1(0x27748AC))
+        self.spi.exchange(dlpgen.FMT_FLIP(long_flip=False, short_flip=True))
+        self.spi.exchange(dlpgen.VCM_CONFIG1(0, 93))
+        self.spi.exchange(dlpgen.VCM_CONTROL(True))
 
     def message_dlp_stop(self):
         """
         Display STOP
         """
-        #Stop                                            1A678D0                 18 = 0x12
-        self.spi.exchange([0x00, 0x64, 0x00, 0xd0, 0x78, 0xa6, 0x01, 0x53]) # write video start address 1
-        self.spi.exchange([0x00, 0x20, 0x00, 0x01, 0x00, 0x00, 0x00, 0x21]) # don't flip
-        self.spi.exchange([0x00, 0x68, 0x00, 0x12, 0x00, 0x00, 0x00, 0x7a]) # write video config 1
-        self.spi.exchange([0x00, 0x74, 0x00, 0x15, 0x00, 0x00, 0x00, 0x89]) # write video control
+        self.spi.exchange(dlpgen.VCM_START_ADDR1(0x345C594))
+        self.spi.exchange(dlpgen.FMT_FLIP(long_flip=False, short_flip=True))
+        self.spi.exchange(dlpgen.VCM_CONFIG1(0, 18))
+        self.spi.exchange(dlpgen.VCM_CONTROL(True))
 
-    def message_dlp_turn(self):
+    def message_dlp_turn(self, v_flip = False):
         """
         Display TURN
         """
-        #Turn                                            85948                   39 = 0x27
-        self.spi.exchange([0x00, 0x64, 0x00, 0x48, 0x59, 0x08, 0x00, 0x0e]) # write video start address 1
-        self.spi.exchange([0x00, 0x20, 0x00, 0x01, 0x00, 0x00, 0x00, 0x21]) # don't flip
-        self.spi.exchange([0x00, 0x68, 0x00, 0x27, 0x00, 0x00, 0x00, 0x8f]) # write video config 1
-        self.spi.exchange([0x00, 0x74, 0x00, 0x15, 0x00, 0x00, 0x00, 0x89]) # write video control
-
-    def message_dlp_turn_flip(self, v_flip = False):
-        """
-        Display TURN
-        """
-        #Turn                                            85948                   39 = 0x27
-        self.spi.exchange([0x00, 0x64, 0x00, 0x48, 0x59, 0x08, 0x00, 0x0d]) # write video start address 1
-        self.spi.exchange([0x00, 0x68, 0x00, 0x27, 0x00, 0x00, 0x00, 0x8f]) # write video config 1
-        if v_flip:
-            self.spi.exchange([0x00, 0x20, 0x00, 0x11, 0x00, 0x00, 0x00, 0x31]) # flip
-        else:
-            self.spi.exchange([0x00, 0x20, 0x00, 0x01, 0x00, 0x00, 0x00, 0x21]) # don't flip
-
-        self.spi.exchange([0x00, 0x74, 0x00, 0x15, 0x00, 0x00, 0x00, 0x89]) # write video control
-
-    #def message_dlp_all(self):
-        #"""
-        #Display GO, then SLOW, then STOP in a loop
-        #"""
-        #self.spi.exchange([0x00, 0x64, 0x00, 0x40, 0x59, 0x08, 0x00, 0x05]) # write video start address 1
-        #self.spi.exchange([0x00, 0x68, 0x00, 0x02, 0x01, 0x00, 0x00, 0x6b]) # write video config 1
-        #self.spi.exchange([0x00, 0x74, 0x00, 0x15, 0x00, 0x00, 0x00, 0x89]) # write video control
+        self.spi.exchange(dlpgen.VCM_START_ADDR1(0x1A7A60C))
+        self.spi.exchange(dlpgen.FMT_FLIP(long_flip=v_flip, short_flip=True))
+        self.spi.exchange(dlpgen.VCM_CONFIG1(0, 39))
+        self.spi.exchange(dlpgen.VCM_CONTROL(True))
 
     def disable_dlp_message(self):
         """
         Disable video
         """
-        self.spi.exchange([0x00, 0x74, 0x00, 0x02, 0x00, 0x00, 0x00, 0x76]) # write video control
-    
+        self.spi.exchange(dlpgen.VCM_CONTROL(False))
+
+    def message_dlp_logo(self):
+        self.spi.exchange(dlpgen.VCM_START_ADDR1(0x85958))
+        self.spi.exchange(dlpgen.FMT_FLIP(long_flip=False, short_flip=True))
+        self.spi.exchange(dlpgen.VCM_CONFIG1(0, 108))
+        self.spi.exchange(dlpgen.VCM_CONTROL(True))
+
+
+    def message_dlp_scan(self):
+        self.spi.exchange(dlpgen.VCM_START_ADDR1(0x17DA51C))
+        self.spi.exchange(dlpgen.FMT_FLIP(long_flip=False, short_flip=True))
+        self.spi.exchange(dlpgen.VCM_CONFIG1(0, 27))
+        self.spi.exchange(dlpgen.VCM_CONTROL(True))
+
+    def message_dlp_straight(self, h_flip):
+        self.spi.exchange(dlpgen.VCM_START_ADDR1(0x1F861C4))
+        self.spi.exchange(dlpgen.FMT_FLIP(long_flip=False, short_flip=h_flip))
+        self.spi.exchange(dlpgen.VCM_CONFIG1(0, 45))
+        self.spi.exchange(dlpgen.VCM_CONTROL(True))
+
     def callback(self, data):
-        if(data.data == 'stop'):
+        print("DLP " + data.data)
+        if(data.data == 'logo'):
+            self.message_dlp_logo()
+        elif(data.data == 'scan'):
+            self.message_dlp_scan()
+        elif(data.data == 'stop'):
             self.message_dlp_stop()
         elif(data.data == 'slow'):
             self.message_dlp_slow()
         elif(data.data == 'go'):
             self.message_dlp_go()
+        elif(data.data == 'forward'):
+            self.message_dlp_straight(h_flip=True)
+        elif(data.data == 'backward'):
+            self.message_dlp_straight(h_flip=False)
         elif(data.data == 'turn_left'):
-            self.message_dlp_turn_flip(False)
+            self.message_dlp_turn(v_flip=True)
         elif(data.data == 'turn_right'):
-            self.message_dlp_turn_flip(True)
+            self.message_dlp_turn(v_flip=False)
         else:
             self.disable_dlp_message()
