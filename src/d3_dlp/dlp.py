@@ -98,7 +98,7 @@ class DLPDemo:
         self.spi.exchange(dlpgen.VCM_CONTROL(True))
 
     def update_dlp(self, dlp_cmd):
-        rospy.loginfo("DLP command: " + dlp_cmd)
+        rospy.logdebug("DLP command: " + dlp_cmd)
         self.disable_dlp_message()
         rospy.sleep(0.05)
         if(dlp_cmd == 'logo'):
