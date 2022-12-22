@@ -1,3 +1,5 @@
+import rospy
+
 def VCM_START_ADDR1(START_ADDR1):
     """Take the Video 1 Start Address in Flash (int) and return corresponding DLP Command"""
     START_ADDR1 = cast_to_int(START_ADDR1)
@@ -39,8 +41,8 @@ def VCM_CONTROL(enable_playback):
         cmd |= 0b10101
     else:
         cmd |= 0b10
-    print(bin(cmd))
-    print(hex(cmd))
+    #print(bin(cmd))
+    rospy.logdebug(hex(cmd))
     return generate_spi_command_arr("vidctl", hex(cmd).upper())
 
 
@@ -149,11 +151,11 @@ def generate_spi_command_arr(cmdtype, data):
     if checksumint > 255:
         checksumint &= 0xFF
     result[-1] = checksumint
-    print_address_arr(result)
+    rospy.loginfo(format_address_arr(result))
     return result
 
 
-def print_address_arr(arr):
+def format_address_arr(arr):
     result = ""
     for i in range(len(arr)):
         if i == 0:
@@ -162,10 +164,11 @@ def print_address_arr(arr):
             result += "0x{:02x}".format(arr[i]) + ", "
         else:
             result += "0x{:02x}".format(arr[i]) + "]"
-    print(result)
+    return result
 
 
 if __name__ == "__main__":
     running = True
+    rospy.init_node("dlp_message_test", anonymous=True)
     while (running):
         running = main()

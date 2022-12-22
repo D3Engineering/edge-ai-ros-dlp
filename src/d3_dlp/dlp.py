@@ -2,6 +2,7 @@
 
 # ROS wrapper around dlp.py
 
+import rospy
 from pyftdi.spi import SpiController, SpiIOError
 from d3_dlp import dlp_spi_generator as dlpgen
 
@@ -42,6 +43,7 @@ class DLPDemo:
         self.spi.exchange(dlpgen.FMT_FLIP(long_flip=False, short_flip=True))
         self.spi.exchange(dlpgen.VCM_CONFIG1(0, 31))
         self.spi.exchange(dlpgen.VCM_CONTROL(True))
+
 
     def message_dlp_slow(self):
         """
@@ -95,25 +97,25 @@ class DLPDemo:
         self.spi.exchange(dlpgen.VCM_CONFIG1(0, 45))
         self.spi.exchange(dlpgen.VCM_CONTROL(True))
 
-    def callback(self, data):
-        print("DLP " + data.data)
-        if(data.data == 'logo'):
+    def update_dlp(self, dlp_cmd):
+        rospy.loginfo("DLP command: " + dlp_cmd)
+        if(dlp_cmd == 'logo'):
             self.message_dlp_logo()
-        elif(data.data == 'scan'):
+        elif(dlp_cmd == 'scan'):
             self.message_dlp_scan()
-        elif(data.data == 'stop'):
+        elif(dlp_cmd == 'stop'):
             self.message_dlp_stop()
-        elif(data.data == 'slow'):
+        elif(dlp_cmd == 'slow'):
             self.message_dlp_slow()
-        elif(data.data == 'go'):
+        elif(dlp_cmd == 'go'):
             self.message_dlp_go()
-        elif(data.data == 'forward'):
+        elif(dlp_cmd == 'forward'):
             self.message_dlp_straight(h_flip=True)
-        elif(data.data == 'backward'):
+        elif(dlp_cmd == 'backward'):
             self.message_dlp_straight(h_flip=False)
-        elif(data.data == 'turn_left'):
-            self.message_dlp_turn(v_flip=True)
-        elif(data.data == 'turn_right'):
+        elif(dlp_cmd == 'turn_left'):
             self.message_dlp_turn(v_flip=False)
+        elif(dlp_cmd == 'turn_right'):
+            self.message_dlp_turn(v_flip=True)
         else:
             self.disable_dlp_message()
