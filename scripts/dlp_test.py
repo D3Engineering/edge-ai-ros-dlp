@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-########
-# DLP Publisher for the purpose of debugging
-# Should be run after starting up the DLP listener
-# use W-A-S-D-Q-E to send various commands to the dlp_command topic
-########
+"""
+DLP Publisher for the purpose of debugging
+Should be run after starting up the DLP listener
+use W-A-S-D-Q-E to send various commands to the dlp_command topic
+"""
 import rospy
 from std_msgs.msg import String
 from geometry_msgs.msg import Twist

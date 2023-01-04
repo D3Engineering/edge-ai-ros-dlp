@@ -1,35 +1,36 @@
 #!/usr/bin/env python3
 
-########
-# DLP Controller - Manages SPI interface and incoming
-# DLP commands and issues the necessary commands to display the
-# correct message based on dlp_command topic
-#
-# This class has a constructor + a single entry point: `update_dlp`
-# that entry point will call the correct update method based on
-# what command string was provided.
-#
-# The remaining functions are just arranged to make sure the
-# correct video address is set, with the correct flip settings
-# with the correct number of total frames.
-########
-
 import rospy
 from pyftdi.spi import SpiController, SpiIOError
 from d3_dlp import dlp_spi_generator as dlpgen
 
-# Video Name Offset offset (hex) framerate (hz) framecount (int)
-# ------------------------------------------------------------
-# D3_Logo    0x85958     20hz        108
-# Scanning   0x17DA51C   20hz        27
-# Turn       0x1A7A60C   30hz        39
-# Straight   0x1F861C4   30hz        45
-# Go         0x245A79C   30hz        31
-# Slow       0x27748AC   30hz        93
-# Stop       0x345C594   30hz        18
-# ------------------------------------------------------------
-# datasheet: https://www.ti.com/lit/ug/dlpu100/dlpu100.pdf?ts=1665158603108&ref_url=https%253A%252F%252Fwww.ti.com%252Fproduct%252FDLP3021-Q1
+"""
+Video Name Offset offset (hex) framerate (hz) framecount (int)
+------------------------------------------------------------
+D3_Logo    0x85958     20hz        108
+Scanning   0x17DA51C   20hz        27
+Turn       0x1A7A60C   30hz        39
+Straight   0x1F861C4   30hz        45
+Go         0x245A79C   30hz        31
+Slow       0x27748AC   30hz        93
+Stop       0x345C594   30hz        18
+------------------------------------------------------------
+datasheet: https://www.ti.com/lit/ug/dlpu100/dlpu100.pdf?ts=1665158603108&ref_url=https%253A%252F%252Fwww.ti.com%252Fproduct%252FDLP3021-Q1
+"""
 class DLPDemo:
+    """
+    DLP Controller - Manages SPI interface and incoming
+    DLP commands and issues the necessary commands to display the
+    correct message based on dlp_command topic
+
+    This class has a constructor + a single entry point: `update_dlp`
+    that entry point will call the correct update method based on
+    what command string was provided.
+
+    The remaining functions are just arranged to make sure the
+    correct video address is set, with the correct flip settings
+    with the correct number of total frames.
+    """
     def __init__(self):
         self.ctrl = SpiController()
         # Configure the first interface (IF/1) of the FTDI device as a SPI master
@@ -40,52 +41,65 @@ class DLPDemo:
         self.spi.set_frequency(5E6)
 
     def message_dlp_go(self):
+        """Display GO"""
         self.spi.exchange(dlpgen.VCM_START_ADDR1(0x245A79C))
         self.spi.exchange(dlpgen.FMT_FLIP(long_flip=False, short_flip=True))
         self.spi.exchange(dlpgen.VCM_CONFIG1(0, 31))
         self.spi.exchange(dlpgen.VCM_CONTROL(True))
 
     def message_dlp_slow(self):
+        """Display SLOW"""
         self.spi.exchange(dlpgen.VCM_START_ADDR1(0x27748AC))
         self.spi.exchange(dlpgen.FMT_FLIP(long_flip=False, short_flip=True))
         self.spi.exchange(dlpgen.VCM_CONFIG1(0, 93))
         self.spi.exchange(dlpgen.VCM_CONTROL(True))
 
     def message_dlp_stop(self):
+        """Display STOP"""
         self.spi.exchange(dlpgen.VCM_START_ADDR1(0x345C594))
         self.spi.exchange(dlpgen.FMT_FLIP(long_flip=False, short_flip=True))
         self.spi.exchange(dlpgen.VCM_CONFIG1(0, 18))
         self.spi.exchange(dlpgen.VCM_CONTROL(True))
 
     def message_dlp_turn(self, v_flip = False):
+        """Display turn arrow"""
         self.spi.exchange(dlpgen.VCM_START_ADDR1(0x1A7A60C))
         self.spi.exchange(dlpgen.FMT_FLIP(long_flip=v_flip, short_flip=True))
         self.spi.exchange(dlpgen.VCM_CONFIG1(0, 39))
         self.spi.exchange(dlpgen.VCM_CONTROL(True))
 
-    # Disable the video
     def disable_dlp_message(self):
+        """Disable video"""
         self.spi.exchange(dlpgen.VCM_CONTROL(False))
 
     def message_dlp_logo(self):
+        """Display D3/TI Logo"""
         self.spi.exchange(dlpgen.VCM_START_ADDR1(0x85958))
         self.spi.exchange(dlpgen.FMT_FLIP(long_flip=False, short_flip=True))
         self.spi.exchange(dlpgen.VCM_CONFIG1(0, 108))
         self.spi.exchange(dlpgen.VCM_CONTROL(True))
 
     def message_dlp_scan(self):
+        """Display SCANNING"""
         self.spi.exchange(dlpgen.VCM_START_ADDR1(0x17DA51C))
         self.spi.exchange(dlpgen.FMT_FLIP(long_flip=False, short_flip=True))
         self.spi.exchange(dlpgen.VCM_CONFIG1(0, 27))
         self.spi.exchange(dlpgen.VCM_CONTROL(True))
 
     def message_dlp_straight(self, h_flip):
+        """Display straight arrow"""
         self.spi.exchange(dlpgen.VCM_START_ADDR1(0x1F861C4))
         self.spi.exchange(dlpgen.FMT_FLIP(long_flip=False, short_flip=h_flip))
         self.spi.exchange(dlpgen.VCM_CONFIG1(0, 45))
         self.spi.exchange(dlpgen.VCM_CONTROL(True))
 
     def update_dlp(self, dlp_cmd):
+        """
+        Update DLP to display the desired message
+
+        :param dlp_cmd: what image to display on the DLP
+        :return: None
+        """
         rospy.logdebug("DLP command: " + dlp_cmd)
         self.disable_dlp_message()
         rospy.sleep(0.05)

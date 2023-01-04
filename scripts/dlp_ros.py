@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-########
-# DLP Listener - sends commands to the DLP
-# based on dlp_command topic
-########
+"""
+DLP Listener - sends commands to the DLP
+based on dlp_command topic
+"""
 
 import rospy
 from std_msgs.msg import String
@@ -13,6 +13,11 @@ dlp_demo = None
 last_dlp_cmd = None
 
 def dlp_callback(data):
+    """
+    Update the DLP when a new command is issued
+    :param data: incoming DLP command
+    :return: None
+    """
     global last_dlp_cmd, dlp_demo
     dlp_cmd = data.data
     # Only update the DLP if the command has changed

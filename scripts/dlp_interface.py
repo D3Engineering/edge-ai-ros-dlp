@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-########
-# Publisher for controlling the DLP
-# Listens to the robot_state and cmd_vel topics and
-# publishes an image name for the DLP to display.
-########
+"""
+Publisher for controlling the DLP
+Listens to the robot_state and cmd_vel topics and
+publishes an image name for the DLP to display.
+"""
 
 import rospy
 from std_msgs.msg import String
@@ -16,23 +16,34 @@ dlp_pub = None
 robot_state = None
 cmd_vel = None
 
-# Read and save the last robot state
 def robot_state_callback(data):
+    """
+    Read and save the last robot state
+    :param data: Incoming robot state
+    :return: None
+    """
     global robot_state
     # Format is <OBJECTIVE_NAME|STATE>, we just want state
     robot_state = data.data.split("|")[1]
 
-# Read and save the last 5 velocity commands
 def cmd_vel_callback(data):
+    """
+    Read and save the last 5 velocity commands
+    :param data: Incoming robot velocity
+    :return: None
+    """
     global cmd_vel
     cmd_vel = data
     vel_data.append(data)
     if len(vel_data) > 5:
         vel_data.pop(0)
 
-# Returns a dlp command corresponding to the
-# current velocity command & robot state.
+
 def update_dlp_command():
+    """
+    Returns a dlp command corresponding to the
+    current velocity command & robot state.
+    """
     state = None
     if RobotState.exists(robot_state):
         state = RobotState[robot_state]
@@ -46,9 +57,11 @@ def update_dlp_command():
 
     return cmd
 
-# Converts the current command velocity to
-# a corresponding direction arrow.
 def vel_to_cmd():
+    """
+    Converts the current command velocity to
+    a corresponding direction arrow.
+    """
     linear_vel = 0
     angular_vel = 0
     # Average linear & angular velocity of the last 5 commands
@@ -92,8 +105,8 @@ def vel_to_cmd():
 
     return cmd
 
-# Main method - publishes the dlp command at a rate of 5 hz
 def dlp_publisher():
+    """Main method - publishes the dlp command at a rate of 5 hz"""
     global dlp_pub
 
     dlp_cmd = None

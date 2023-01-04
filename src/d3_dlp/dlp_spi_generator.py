@@ -1,13 +1,13 @@
-########
-# DLP Driver - Responsible for taking human-readable arguments
-# and turning them into corresponding DLP commands. (see datasheet for details).
-# This library does NOT manage an SPI driver, that's what the controller does.
-#
-# Generally, the complexity lies in the fact that each message has
-# a checksum, and that the messages are little-endian.
-#
-# datasheet: https://www.ti.com/lit/ug/dlpu100/dlpu100.pdf?ts=1665158603108&ref_url=https%253A%252F%252Fwww.ti.com%252Fproduct%252FDLP3021-Q1
-########
+"""
+DLP Driver - Responsible for taking human-readable arguments
+and turning them into corresponding DLP commands. (see datasheet for details).
+This library does NOT manage an SPI driver, that's what the controller does.
+
+Generally, the complexity lies in the fact that each message has
+a checksum, and that the messages are little-endian.
+
+datasheet: https://www.ti.com/lit/ug/dlpu100/dlpu100.pdf?ts=1665158603108&ref_url=https%253A%252F%252Fwww.ti.com%252Fproduct%252FDLP3021-Q1
+"""
 
 import rospy
 
@@ -101,10 +101,12 @@ def main(cmd=""):
         VCM_CONTROL(play)
     return True
 
-
-# This function converts a command + data into a little endian
-# hexadecimal integer with the correct corresponding checksum
 def generate_spi_command_arr(cmdtype, data):
+    """
+    This function converts a command + data into a little endian
+    hexadecimal integer with the correct corresponding checksum
+    """
+
     # The resulting command - first two bytes indicate the command
     # the last byte is the checksum
     result = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
@@ -149,10 +151,10 @@ def generate_spi_command_arr(cmdtype, data):
     else:
         print("data value too large")
 
-    tempstr = ""
     # Reverse all big-endian data and put it into the array
     # Since this loops over each nibble of each byte this must track
     # which nibble it's on before moving on to the next byte.
+    tempstr = ""
     for char in data[2:]:
         if arrbitlen == 1:
             rint = int("0x0" + char, base=16)
