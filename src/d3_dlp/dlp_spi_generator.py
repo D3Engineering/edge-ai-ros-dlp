@@ -1,3 +1,14 @@
+########
+# DLP Driver - Responsible for taking human-readable arguments
+# and turning them into corresponding DLP commands. (see datasheet for details).
+# This library does NOT manage an SPI driver, that's what the controller does.
+#
+# Generally, the complexity lies in the fact that each message has
+# a checksum, and that the messages are little-endian.
+#
+# datasheet: https://www.ti.com/lit/ug/dlpu100/dlpu100.pdf?ts=1665158603108&ref_url=https%253A%252F%252Fwww.ti.com%252Fproduct%252FDLP3021-Q1
+########
+
 import rospy
 
 def VCM_START_ADDR1(START_ADDR1):
@@ -91,9 +102,15 @@ def main(cmd=""):
     return True
 
 
+# This function converts a command + data into a little endian
+# hexadecimal integer with the correct corresponding checksum
 def generate_spi_command_arr(cmdtype, data):
+    # The resulting command - first two bytes indicate the command
+    # the last byte is the checksum
     result = [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+
     checksumint = 0
+    # Set the command byte and update the checksum
     if cmdtype == "startaddr":
         checksumint = 0x64
         result[1] = 0x64
@@ -117,6 +134,8 @@ def generate_spi_command_arr(cmdtype, data):
     else:
         arrbitlen = 1
 
+    # the length will always be at least 2 because of the "0x" prefix
+    # Otherwise, this will set us up to flip the incoming data
     if len(data) < 3:
         print("data value too small")
     elif 3 <= len(data) <= 4:
@@ -131,6 +150,9 @@ def generate_spi_command_arr(cmdtype, data):
         print("data value too large")
 
     tempstr = ""
+    # Reverse all big-endian data and put it into the array
+    # Since this loops over each nibble of each byte this must track
+    # which nibble it's on before moving on to the next byte.
     for char in data[2:]:
         if arrbitlen == 1:
             rint = int("0x0" + char, base=16)
@@ -148,6 +170,8 @@ def generate_spi_command_arr(cmdtype, data):
                 checksumint += rint
                 tempstr = ""
                 arrindex -= 1
+
+    # The checksum will roll over after one byte
     if checksumint > 255:
         checksumint &= 0xFF
     result[-1] = checksumint

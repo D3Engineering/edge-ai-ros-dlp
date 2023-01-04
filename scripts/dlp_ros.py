@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
-# ROS wrapper around dlp.py
+########
+# DLP Listener - sends commands to the DLP
+# based on dlp_command topic
+########
 
 import rospy
 from std_msgs.msg import String
@@ -11,8 +14,9 @@ last_dlp_cmd = None
 
 def dlp_callback(data):
     global last_dlp_cmd, dlp_demo
-
     dlp_cmd = data.data
+    # Only update the DLP if the command has changed
+    # important cause otherwise the image will be stuck at it's first frame
     if dlp_cmd != last_dlp_cmd:
         dlp_demo.update_dlp(dlp_cmd)
         last_dlp_cmd = dlp_cmd

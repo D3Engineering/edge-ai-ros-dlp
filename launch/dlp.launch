@@ -1,3 +1,5 @@
+<!-- Sets up DLP listener & publisher -->
+<!-- Requires cmd_vel and robot_state topics to be published -->
 <launch>
     <node pkg="d3_dlp" type="dlp_ros.py" name="dlp_control" ns="dlp" output="screen">
     </node>
