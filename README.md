@@ -1,6 +1,6 @@
 # edge-ai-ros-dlp
 
-DLP Controller code: to automatically update the DLP while running the inventory demo.
+DLP Controller code: to automatically update the DLP while running the [edge-ai inventory demo](https://github.com/D3Engineering/edge-ai-ros-inventory-demo.git).
 For details on how it all works, check the in-code documentation.
 
 To test the DLP on your robot, run:
